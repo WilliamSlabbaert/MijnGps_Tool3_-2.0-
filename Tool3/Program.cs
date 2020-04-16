@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace Tool3
 {
@@ -10,8 +11,8 @@ namespace Tool3
         public static SqlConnection database = new SqlConnection(@"Data Source=WILLIAM-SLABBAE\SQLEXPRESS;Initial Catalog=AdressenOpdracht;Integrated Security=True");
         static void Main(string[] args)
         {
-           
-            while(true)
+
+            while (true)
             {
                 Console.Clear();
                 Console.WriteLine("Get province [1]");
@@ -22,7 +23,7 @@ namespace Tool3
                 Console.Write("==> ");
                 Console.ResetColor();
                 int input = Convert.ToInt32(Console.ReadLine());
-                if(input == 1)
+                if (input == 1)
                 {
                     Choice1();
                 }
@@ -38,9 +39,13 @@ namespace Tool3
                 {
                     break;
                 }
+                else
+                {
+                    break;
+                }
 
             }
-            
+
         }
 
         static void Choice1()
@@ -59,7 +64,7 @@ namespace Tool3
             String ID = "";
             String NAME = "";
             String gemt = "";
-            foreach(DataRow row in set.Rows)
+            foreach (DataRow row in set.Rows)
             {
                 ID = row[0].ToString();
                 NAME = row[1].ToString();
@@ -76,7 +81,7 @@ namespace Tool3
                 SqlDataAdapter ada2 = new SqlDataAdapter(command2);
                 DataTable set2 = new DataTable();
                 ada2.Fill(set2);
-                foreach(DataRow row in set2.Rows)
+                foreach (DataRow row in set2.Rows)
                 {
                     listIdsGem.Add(row[1].ToString());
                 }
@@ -84,12 +89,21 @@ namespace Tool3
             Console.WriteLine($"ID = {ID} | NAME = {NAME} | CITYCOUNT = {listIdsGem.Count}");
             Console.WriteLine("SEE ALL THE CITIES [Y]");
             String i = Console.ReadLine();
+            List<String> temp = new List<string> { };
             if (i.ToLower() == "y")
             {
                 foreach (string item in listIdsGem)
                 {
+                    if (!temp.Contains(item))
+                    {
+                        temp.Add(item);
+                    }
+                }
+                foreach (string item in temp)
+                {
                     Console.WriteLine(item);
                 }
+
                 Console.ReadLine();
                 database.Close();
 
@@ -132,6 +146,7 @@ namespace Tool3
 
             String[] strIds = strt.Split(",");
             List<String> ListStreets = new List<string> { };
+            List<String> ListLenght = new List<string> { };
             foreach (string item in strIds)
             {
                 SqlCommand command2 = new SqlCommand($"SELECT * FROM [dbo].[Streets] WHERE ID=@input", database);
@@ -142,16 +157,18 @@ namespace Tool3
                 foreach (DataRow row in set2.Rows)
                 {
                     ListStreets.Add(row[1].ToString());
+                    ListLenght.Add(row[2].ToString());
                 }
             }
             Console.WriteLine($"ID = {ID} | NAME = {NAME} | BIGGEST STREET = {MAX} | SMALLEST STREET = {MIN}");
+            Console.WriteLine("STREET COUNT = " + ListStreets.Count);
             Console.WriteLine("SEE ALL THE STREETS [Y]");
             String i = Console.ReadLine();
-            if(i.ToLower() == "y")
+            if (i.ToLower() == "y")
             {
-                foreach (string item in ListStreets)
+                for(int index = 0; index<ListStreets.Count; index++)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(ListStreets[index] + " > " + ListLenght[index]);
                 }
                 Console.ReadLine();
                 database.Close();
@@ -185,16 +202,39 @@ namespace Tool3
                 NAME = row[1].ToString();
                 Segments = row[3].ToString();
             }
-            String[] SegmentsList = Segments.Split(",");
-            Console.WriteLine($"ID = {ID} | NAME = {NAME}");
-            Console.WriteLine("SEE ALL DETAILS [Y]");
-            String input = Console.ReadLine();
-            if(input.ToLower() == "y" )
+            database.Close();
+            database.Open();
+
+
+
+
+            SqlCommand command2 = new SqlCommand($"SELECT * FROM [dbo].[Gemeente]", database);
+            SqlDataAdapter ada2 = new SqlDataAdapter(command2);
+
+            DataTable set2 = new DataTable();
+            ada2.Fill(set2);
+            List<City> CityObjects = new List<City> { };
+            foreach (DataRow item in set2.Rows)
             {
-                foreach(string s in SegmentsList)
+                //temp.Add(item[1].ToString());
+                String[] temp = item[2].ToString().Split(",");
+                CityObjects.Add(new City(item[1].ToString(), item[0].ToString(), temp.Distinct().ToList()));
+            }
+
+            Console.WriteLine($"ID = {ID} | NAME = {NAME}");
+            Console.WriteLine("SEE ALL THE CITYS [Y]");
+            Console.WriteLine(CityObjects.Count);
+            String i = Console.ReadLine();
+            if (i.ToLower() == "y")
+            {
+                foreach (City str in CityObjects)
                 {
-                    Console.WriteLine(s);
+                    if (str.StreetIds.Contains(ID))
+                    {
+                        Console.WriteLine(str.Name);
+                    }
                 }
+                Console.ReadLine();
                 database.Close();
             }
             else
@@ -202,6 +242,8 @@ namespace Tool3
                 Console.ReadLine();
                 database.Close();
             }
+            Console.ReadLine();
+            database.Close();
 
         }
     }
