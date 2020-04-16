@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Tool3
@@ -15,6 +16,11 @@ namespace Tool3
 
         public String Name { get; set; }
         public String ID { get; set; }
-        public List<String> StreetIds { get; set; }
+        public List<String> StreetIds = new List<string> { };
+
+        public override string ToString()
+        {
+            return Name + " " + StreetIds.Count();
+        }
     }
 }

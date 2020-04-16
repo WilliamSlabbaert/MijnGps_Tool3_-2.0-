@@ -166,7 +166,7 @@ namespace Tool3
             String i = Console.ReadLine();
             if (i.ToLower() == "y")
             {
-                for(int index = 0; index<ListStreets.Count; index++)
+                for (int index = 0; index < ListStreets.Count; index++)
                 {
                     Console.WriteLine(ListStreets[index] + " > " + ListLenght[index]);
                 }
@@ -186,6 +186,7 @@ namespace Tool3
             String streetInput = Console.ReadLine();
             Console.WriteLine();
             database.Open();
+
             SqlCommand command1 = new SqlCommand($"SELECT * FROM [dbo].[Streets] WHERE STREETNAME=@input", database);
             command1.Parameters.AddWithValue("@input", streetInput);
 
@@ -196,52 +197,20 @@ namespace Tool3
             String ID = "";
             String NAME = "";
             String Segments = "";
+
             foreach (DataRow row in set.Rows)
             {
                 ID = row[0].ToString();
                 NAME = row[1].ToString();
                 Segments = row[3].ToString();
             }
+
             database.Close();
             database.Open();
 
-
-
-
-            SqlCommand command2 = new SqlCommand($"SELECT * FROM [dbo].[Gemeente]", database);
-            SqlDataAdapter ada2 = new SqlDataAdapter(command2);
-
-            DataTable set2 = new DataTable();
-            ada2.Fill(set2);
-            List<City> CityObjects = new List<City> { };
-            foreach (DataRow item in set2.Rows)
-            {
-                //temp.Add(item[1].ToString());
-                String[] temp = item[2].ToString().Split(",");
-                CityObjects.Add(new City(item[1].ToString(), item[0].ToString(), temp.Distinct().ToList()));
-            }
-
             Console.WriteLine($"ID = {ID} | NAME = {NAME}");
-            Console.WriteLine("SEE ALL THE CITYS [Y]");
-            Console.WriteLine(CityObjects.Count);
             String i = Console.ReadLine();
-            if (i.ToLower() == "y")
-            {
-                foreach (City str in CityObjects)
-                {
-                    if (str.StreetIds.Contains(ID))
-                    {
-                        Console.WriteLine(str.Name);
-                    }
-                }
-                Console.ReadLine();
-                database.Close();
-            }
-            else
-            {
-                Console.ReadLine();
-                database.Close();
-            }
+
             Console.ReadLine();
             database.Close();
 
