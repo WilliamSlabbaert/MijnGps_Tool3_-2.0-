@@ -204,16 +204,27 @@ namespace Tool3
                 NAME = row[1].ToString();
                 Segments = row[3].ToString();
             }
-
+            String[] segList = Segments.Split("|");
             database.Close();
             database.Open();
 
             Console.WriteLine($"ID = {ID} | NAME = {NAME}");
+            Console.WriteLine("SEE DETAILS [Y]");
             String i = Console.ReadLine();
-
-            Console.ReadLine();
-            database.Close();
-
+            if(i.ToLower() == "y")
+            {
+                foreach(String x in segList)
+                {
+                    Console.WriteLine(x);
+                }
+                Console.ReadLine();
+                database.Close();
+            }
+            else
+            {
+                Console.ReadLine();
+                database.Close();
+            }
         }
     }
 }
